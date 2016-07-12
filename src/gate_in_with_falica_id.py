@@ -10,7 +10,7 @@ import urllib
 import urllib2
 import time
 
-id_pattern = re.compile('IDm=([0-9a-z]+)')
+id_pattern = re.compile('ID=([0-9a-z]+)')
 
 commands.getoutput("sudo gpio-admin export 14")
 commands.getoutput("echo out > /sys/class/gpio/gpio14/direction")

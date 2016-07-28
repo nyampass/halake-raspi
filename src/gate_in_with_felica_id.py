@@ -64,10 +64,10 @@ def performe(tag):
         res =  post(id)
         if res == 'no-user':
             led(True, False, False)
-	    wiringpi.softToneWrite(beep_pin, E)
-	    sleep(1)
-	    wiringpi.softToneWrite(beep_pin, 0)
-	    time.sleep(0.1)
+            wiringpi.softToneWrite(beep_pin, E)
+            sleep(1)
+            wiringpi.softToneWrite(beep_pin, 0)
+            time.sleep(0.1)
         else:
             led(False, False, True)
     time.sleep(2)

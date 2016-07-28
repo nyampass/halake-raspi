@@ -10,17 +10,35 @@ import urllib
 import urllib2
 import time
 import RPi.GPIO as GPIO
+import wiringpi2 as wiringpi
+from time import sleep
 
 id_pattern = re.compile('ID=([0-9a-z]+)')
 
 led_r_pin   = 14
 led_g_pin = 15
 led_b_pin  = 18
+beep_pin = 25
+delay = 0.2
+
+A1 = 135
+B1 = 160
+C = 190
+D = 240
+E = 265
+F = 315
+G = 365
+A = 390
+B = 415
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(led_r_pin, GPIO.OUT)
 GPIO.setup(led_g_pin, GPIO.OUT)
 GPIO.setup(led_b_pin, GPIO.OUT)
+GPIO.setup(beep_pin, GPIO.OUT)
+
+wiringpi.wiringPiSetupGpio()
+wiringpi.softToneCreate(beep_pin)
 
 def led(r, g, b):
     GPIO.output(led_r_pin, not r)
@@ -46,6 +64,10 @@ def performe(tag):
         res =  post(id)
         if res == 'no-user':
             led(True, False, False)
+	    wiringpi.softToneWrite(beep_pin, E)
+	    sleep(1)
+	    wiringpi.softToneWrite(beep_pin, 0)
+	    time.sleep(0.1)
         else:
             led(False, False, True)
     time.sleep(2)

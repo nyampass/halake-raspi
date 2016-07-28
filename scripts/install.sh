@@ -6,6 +6,14 @@ CURRENT_DIR=`pwd`
 # ready
 sudo apt-get update
 sudo apt-get upgrade
+git clone git://git.drogon.net/wiringPi
+cd wiringPi
+./build
+cd ../
+sudo apt-get install python-dev python-setuptools
+git clone https://github.com/Gadgetoid/WiringPi2-Python.git
+cd WiringPi2-Python
+sudo python setup.py install
 
 #
 # install nycpy

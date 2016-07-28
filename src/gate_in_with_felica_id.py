@@ -9,20 +9,23 @@ import commands
 import urllib
 import urllib2
 import time
+import RPi.GPIO as GPIO
 
 id_pattern = re.compile('ID=([0-9a-z]+)')
 
-commands.getoutput("sudo gpio-admin export 14")
-commands.getoutput("echo out > /sys/class/gpio/gpio14/direction")
+led_r_pin   = 14
+led_g_pin = 15
+led_b_pin  = 18
 
-commands.getoutput("sudo gpio-admin export 15")
-commands.getoutput("echo out > /sys/class/gpio/gpio15/direction")
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(led_r_pin, GPIO.OUT)
+GPIO.setup(led_g_pin, GPIO.OUT)
+GPIO.setup(led_b_pin, GPIO.OUT)
 
 def led(r, g, b):
-    cmd = "echo " + str(0 if r else 1) + " > /sys/class/gpio/gpio15/value"
-    commands.getoutput(cmd)
-    cmd = "echo " + str(0 if b else 1) + " > /sys/class/gpio/gpio14/value"
-    commands.getoutput(cmd)
+    GPIO.output(led_r_pin, not r)
+    GPIO.output(led_g_pin, not g)
+    GPIO.output(led_b_pin, not b)
 
 def post(id):
     url = "https://halake-users.herokuapp.com/api/v1/nfc_ids"

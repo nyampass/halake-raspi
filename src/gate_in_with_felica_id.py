@@ -15,9 +15,9 @@ from time import sleep
 
 id_pattern = re.compile('ID=([0-9a-z]+)')
 
-led_r_pin   = 14
-led_g_pin = 15
-led_b_pin  = 18
+led_r_pin = 10
+led_g_pin = 9
+led_b_pin = 11
 beep_pin = 25
 delay = 0.2
 

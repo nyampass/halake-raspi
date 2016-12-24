@@ -82,6 +82,7 @@ def button_process(pin, action):
 PRINT_BUTTON = 22
 DAY_BUTTON = 17
 TWO_HOURS_BUTTON = 27
+RESET_BUTTON = 18
 day_record = {'title': 'コワーキングスペース一日利用' , 'price': 1000}
 two_hours_record = {'title': 'コワーキングスペース2時間利用', 'price':  500}
 p = Usb(0x04b8, 0x0202, 0)
@@ -91,6 +92,7 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(PRINT_BUTTON, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 GPIO.setup(DAY_BUTTON, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 GPIO.setup(TWO_HOURS_BUTTON, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+GPIO.setup(RESET_BUTTON, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 
 records = []
 
@@ -99,10 +101,15 @@ def print_action():
   print_receipt(p, datetime.now(), records)
   records = []
 
+def reset_action():
+  global records
+  records = []
+
 button_processes = []
 button_processes.append(button_process(PRINT_BUTTON, print_action))
 button_processes.append(button_process(DAY_BUTTON, lambda: records.append(day_record)))
 button_processes.append(button_process(TWO_HOURS_BUTTON, lambda: records.append(two_hours_record)))
+button_processes.append(button_process(RESET_BUTTON, reset_action))
 
 print('start')
 while True:

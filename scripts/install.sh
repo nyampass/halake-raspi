@@ -34,3 +34,8 @@ sudo ln -s `pwd` /usr/local/lib/python2.7/dist-packages/
 
 # get back to first directory
 cd $CURRENT_DIR
+
+#
+# install python-escpos
+#
+sudo pip3 python-escpos

@@ -80,8 +80,8 @@ def button_process(pin, action):
 
 
 PRINT_BUTTON = 22
-DAY_BUTTON = 27
-TWO_HOURS_BUTTON = 17
+DAY_BUTTON = 17
+TWO_HOURS_BUTTON = 27
 day_record = {'title': 'コワーキングスペース一日利用' , 'price': 1000}
 two_hours_record = {'title': 'コワーキングスペース2時間利用', 'price':  500}
 p = Usb(0x04b8, 0x0202, 0)

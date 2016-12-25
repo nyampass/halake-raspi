@@ -1,7 +1,7 @@
 # halake-raspi
 A library to use projects maintained by nyampass.
 
-# Functions
+# Programs
 ## gatein-by-felica
 It scans felica id for gatein.
 
@@ -30,7 +30,7 @@ cd [halake-raspi-dir]
 ./scripts/start.sh
 ```
 
-## Each
+## Each package
 ```sh
 cd [halake-raspi-dir]
 ./src/[program-to-run]

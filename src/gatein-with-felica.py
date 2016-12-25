@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+
 # -*- coding: utf-8 -*-
- 
+
 import binascii
 import nfc
 import time
@@ -10,7 +11,7 @@ import urllib
 import urllib2
 import time
 import RPi.GPIO as GPIO
-import wiringpi2 as wiringpi
+import wiringpi
 from time import sleep
 
 id_pattern = re.compile('ID=([0-9a-z]+)')
@@ -52,7 +53,7 @@ def post(id):
     req.add_header('Content-Type', 'application/x-www-form-urlencoded')
     req.add_data(params)
     res = urllib2.urlopen(req).read()
-    print "response: " + res
+    print("response: " + res)
     return res
 
 def performe(tag):
@@ -60,7 +61,7 @@ def performe(tag):
     matched = id_pattern.search(tag_str)
     if matched:
         id = matched.group(1)
-        print "id: " + id
+        print("id: " + id)
         res =  post(id)
         if res == 'no-user':
             led(True, False, False)
@@ -77,7 +78,7 @@ def connected(tag):
     try:
         performe(tag)
     except Exception as e:
-        print e
+        print(e)
 
 led(False, False, False)
 clf = nfc.ContactlessFrontend('usb')

@@ -1,43 +1,25 @@
-# references
-# http://qiita.com/ihgs/items/34eefd8d01c570e92984
-
-CURRENT_DIR=`pwd`
-
-# ready
-sudo apt-get update
-sudo apt-get upgrade
-git clone git://git.drogon.net/wiringPi
-cd wiringPi
-./build
-cd ../
-sudo apt-get install python-dev python-setuptools
-git clone https://github.com/Gadgetoid/WiringPi2-Python.git
-cd WiringPi2-Python
-sudo python setup.py install
+#!/bin/bash
 
 #
-# install nycpy
+# Install pip for python2 and python3
 #
-
-# related packages
-sudo apt-get install -y python-pip python-usb bzr
-sudo pip libusb1 pyserial
-
-# download
-mkdir ~/nycpy
-cd ~/nycpy
-bzr branch lp:nfcpy trunk
-
-# set path for global
-cd ~/nycpy/trunk/nfc
-sudo ln -s `pwd` /usr/local/lib/python2.7/dist-packages/
-
-# get back to first directory
-cd $CURRENT_DIR
+sudo apt-get install -y python-setuptools python-pip python3-setuptools python3-pip
+sudo pip2 install --upgrade pip
+sudo pip3 install --upgrade pip
 
 #
-# install python3 and python-escpos
+# Install wiring-pi
 #
-sudo apt-get install python3-RPi.GPIO python3-setuptools python3-pip libjpeg8-dev
-sudo pip3 --upgrade pip
-sudo pip3 python-escpos
+sudo apt-get install -y python-dev
+sudo pip2 install wiringpi2
+
+#
+# Install nfcpy
+#
+sudo pip2 install nfcpy
+
+#
+# Install python3 and python-escpos
+#
+sudo apt-get install -y python3-RPi.GPIO libjpeg8-dev
+sudo pip3 install python-escpos

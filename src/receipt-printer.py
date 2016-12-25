@@ -4,9 +4,15 @@
 
 import RPi.GPIO as GPIO
 import time
+import os
 from datetime import datetime
 from escpos.printer import Usb
 from escpos.constants import FS, ESC
+
+print(__file__)
+print(os.path.realpath(__file__))
+image_dir = os.path.dirname(os.path.realpath(__file__))
+print(image_dir)
 
 def set_sjis_mode(p):
   p._raw(FS + b'C\x01') # set SJIS mode
@@ -25,7 +31,7 @@ def print_receipt(p, dt, records):
   p.set(align = 'right', smooth = True)
   text_sjis(p, dt.strftime('%Y/%m/%d %H:%M\n'))
   p.set(align = 'center', smooth = True)
-  p.image('halake-logo.png')
+  p.image(image_dir + '/halake-logo.png')
   set_quadruple_size_mode(p)
   text_sjis(p, '\n領収書\n\n\n')
   p.set(align = 'center', smooth = True, text_type = 'U')

@@ -36,6 +36,8 @@ sudo ln -s `pwd` /usr/local/lib/python2.7/dist-packages/
 cd $CURRENT_DIR
 
 #
-# install python-escpos
+# install python3 and python-escpos
 #
+sudo apt-get install python3-RPi.GPIO python3-setuptools python3-pip libjpeg8-dev
+sudo pip3 --upgrade pip
 sudo pip3 python-escpos

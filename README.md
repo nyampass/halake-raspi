@@ -18,9 +18,17 @@ References
 
 # Setup
 
+## Run script
 ```sh
 sudo sh [halake-raspi-dir]/scripts/install.sh
 ```
+
+## Timezone
+Set your timezone via raspi-config.
+```sh
+sudo raspi-config
+```
+ex: [4 Localization Options] -> [I2 Change Timezone] -> [Asia] -> [Tokyo]
 
 # Run
 

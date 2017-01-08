@@ -10,7 +10,7 @@ References
 - [Raspberry PiでFelicaのIDmを表示する](http://qiita.com/ihgs/items/34eefd8d01c570e92984)
 
 ## receipt-print
-It controls receipt printer.
+It controls a receipt printer.
 
 References
 - [python-escpos](https://python-escpos.readthedocs.io/en/latest/)

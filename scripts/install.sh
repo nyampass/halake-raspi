@@ -19,7 +19,7 @@ sudo pip2 install wiringpi2
 sudo pip2 install nfcpy
 
 #
-# Install python3 and python-escpos
+# Install python3 and python-escpos, python-connpass
 #
 sudo apt-get install -y python3-RPi.GPIO libjpeg8-dev
-sudo pip3 install python-escpos
+sudo pip3 install python-escpos python-connpass

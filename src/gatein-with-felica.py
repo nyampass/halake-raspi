@@ -41,10 +41,12 @@ GPIO.setup(beep_pin, GPIO.OUT)
 wiringpi.wiringPiSetupGpio()
 wiringpi.softToneCreate(beep_pin)
 
+
 def led(r, g, b):
     GPIO.output(led_r_pin, not r)
     GPIO.output(led_g_pin, not g)
     GPIO.output(led_b_pin, not b)
+
 
 def post(id):
     url = "https://halake-users.herokuapp.com/api/v1/nfc_ids"
@@ -56,13 +58,14 @@ def post(id):
     print("response: " + res)
     return res
 
+
 def performe(tag):
     tag_str = str(tag)
     matched = id_pattern.search(tag_str)
     if matched:
         id = matched.group(1)
         print("id: " + id)
-        res =  post(id)
+        res = post(id)
         if res == 'no-user':
             led(True, False, False)
             wiringpi.softToneWrite(beep_pin, E)
@@ -73,6 +76,7 @@ def performe(tag):
             led(False, False, True)
     time.sleep(2)
     led(False, False, False)
+
 
 def connected(tag):
     try:

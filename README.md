@@ -12,6 +12,8 @@ References
 ## receipt-print
 It controls a receipt printer.
 
+Make `.secret.json` file to print wifi-password. [.secret.json.example](/.secret.json.example) may helps you to know the requirement.
+
 References
 - [python-escpos](https://python-escpos.readthedocs.io/en/latest/)
 - [Commands in Code Order](https://reference.epson-biz.com/modules/ref_escpos/index.php?content_id=72)

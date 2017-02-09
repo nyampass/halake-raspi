@@ -10,6 +10,7 @@ from connpass import Connpass
 from datetime import datetime
 from escpos.constants import FS, ESC
 from escpos.printer import Usb
+from escpos.exceptions import USBNotFoundError
 
 image_dir = os.path.dirname(os.path.realpath(__file__))
 root_dir = os.path.dirname(image_dir)
@@ -145,6 +146,14 @@ def button_process(pin, action):
     return process()
 
 
+def open_printer(vendor_id, product_id):
+    try:
+        return Usb(vendor_id, product_id, 0)
+    except USBNotFoundError:
+        print("cannot open printer")
+        return None
+
+
 PRINT_BUTTON = 22
 DAY_BUTTON = 17
 TWO_HOURS_BUTTON = 27
@@ -152,7 +161,8 @@ RESET_BUTTON = 18
 INFO_BUTTON = 24
 day_record = {'title': 'コワーキングスペース一日利用', 'price': 1000}
 two_hours_record = {'title': 'コワーキングスペース2時間利用', 'price':  500}
-p = Usb(0x04b8, 0x0202, 0)
+vendor_id = 0x04b8
+product_id = 0x0202
 
 GPIO.setmode(GPIO.BCM)
 
@@ -167,8 +177,11 @@ records = []
 
 def print_action():
     global records
-    print_receipt(p, datetime.now(), records)
-    records = []
+    p = open_printer(vendor_id, product_id)
+    if (p != None):
+        print_receipt(p, datetime.now(), records)
+        records = []
+        p.close()
 
 
 def reset_action():
@@ -177,7 +190,10 @@ def reset_action():
 
 
 def info_action():
-    print_info(p)
+    p = open_printer(vendor_id, product_id)
+    if (p != None):
+        print_info(p)
+        p.close()
 
 button_processes = []
 button_processes.append(button_process(PRINT_BUTTON, print_action))

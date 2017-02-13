@@ -193,6 +193,7 @@ def info_action():
     p = open_printer(vendor_id, product_id)
     if (p != None):
         print_info(p)
+        records = []
         p.close()
 
 button_processes = []

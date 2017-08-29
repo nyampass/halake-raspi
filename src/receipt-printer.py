@@ -78,13 +78,19 @@ def event_headeline(event, start_at):
 
     title = re.sub(r'^【\d+/\d+開催】', '',
                    re.sub(r'^【\d+/\d+】', '', title))
+    limit = event['limit']
+    accepted = event['accepted']
+    accepted_str = ''
+    if limit == None:
+        accepted_str = '({accepted}名)'.format(accepted=accepted)
+    else:
+        accepted_str = '({accepted}/{limit}名)'.format(accepted=accepted, limit=limit)
 
-    return '・{month}/{day} {title} ({accepted}/{limit}名)'.format(
+    return '・{month}/{day} {title} {accepted_str}'.format(
         title=title,
         month=start_at.month,
         day=start_at.day,
-        limit=event['limit'],
-        accepted=event['accepted'])
+        accepted_str=accepted_str)
 
 
 # Load .secret data

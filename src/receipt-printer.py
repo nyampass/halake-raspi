@@ -7,7 +7,7 @@ import os
 import re
 import time
 from connpass import Connpass
-from datetime import datetime
+from datetime import datetime, timedelta
 from escpos.constants import FS, ESC
 from escpos.printer import Usb
 from escpos.exceptions import USBNotFoundError
@@ -92,16 +92,13 @@ with open(root_dir + '/.secret.json') as f:
     secret = json.load(f)
 
 
-def receipt_info():
-    header = """HaLake Wifi
-SSID: halake-a, halake-a2
-パスワード: {password}
+events = []
+got_event_at = None
+CHECK_EVENT_INTERVAL = timedelta(hours = 1)
 
-今後のイベント情報:
-http://halake.connpass.com/
 
-""".format(**secret)
-
+def get_events():
+    global events
     events = []
     for event in Connpass().search(series_id=[CONNPASS_GROUP_ID])['events']:
         start_at = datetime.strptime(
@@ -113,6 +110,26 @@ http://halake.connpass.com/
             })
 
     events = sorted(events, key=lambda event: event['date'])
+
+
+def check_events():
+    global got_event_at
+    if got_event_at == None or got_event_at < datetime.now() - CHECK_EVENT_INTERVAL:
+        got_event_at = datetime.now()
+        get_events()
+
+
+def receipt_info():
+    header = """HaLake Wifi
+SSID: halake-a, halake-a2
+パスワード: {password}
+
+今後のイベント情報:
+http://halake.connpass.com/
+
+""".format(**secret)
+
+    global events
     return header + '\n'.join([event['headline'] for event in events])
 
 
@@ -209,4 +226,5 @@ print('start')
 while True:
     for process in button_processes:
         next(process)
+    check_events()
     time.sleep(0.01)

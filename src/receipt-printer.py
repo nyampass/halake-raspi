@@ -148,6 +148,32 @@ def print_info(p):
     p.cut()
 
 
+def questions_receipt():
+    return """よろしければアンケートにご協力ください
+
+HaLakeをどのように知りましたか？
+[ ] web検索
+[ ] 友人からの紹介
+[ ] 情報誌
+[ ] その他(                              )
+
+HaLakeをご利用になり、気になったことがありましたら、お知らせください。
+気になったこと
+(
+
+
+
+                                         )
+
+ご回答いただいたアンケートは入口付近の回収箱にお入れください。
+ご協力ありがとうございました。"""
+
+
+def print_questions(p):
+    text_sjis(p, questions_receipt())
+    p.cut()
+
+
 def button_process(pin, action):
     def process():
         i = 0
@@ -216,6 +242,7 @@ def info_action():
     p = open_printer(vendor_id, product_id)
     if (p != None):
         print_info(p)
+        print_questions(p)
         records = []
         p.close()
 

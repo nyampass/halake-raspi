@@ -131,7 +131,7 @@ SSID: halake-a, halake-a2
 パスワード: {password}
 
 今後のイベント情報:
-http://halake.connpass.com/
+https://halake.connpass.com/
 
 """.format(**secret)
 

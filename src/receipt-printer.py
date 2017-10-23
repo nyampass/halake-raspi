@@ -249,7 +249,7 @@ def info_action():
     p = open_printer(vendor_id, product_id)
     if (p != None):
         print_info(p)
-        print_questions(p)
+        # print_questions(p)
         records = []
         p.close()
 

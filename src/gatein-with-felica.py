@@ -19,7 +19,7 @@ id_pattern = re.compile('ID=([0-9a-z]+)')
 led_r_pin = 10
 led_g_pin = 9
 led_b_pin = 11
-beep_pin = 25
+beep_pin = 8
 delay = 0.2
 
 A1 = 135

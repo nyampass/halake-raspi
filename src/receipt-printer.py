@@ -210,11 +210,11 @@ def open_printer(vendor_id, product_id):
         return None
 
 
-PRINT_BUTTON = 22
-DAY_BUTTON = 17
-TWO_HOURS_BUTTON = 27
-RESET_BUTTON = 18
-INFO_BUTTON = 24
+PRINT_BUTTON = 17
+DAY_BUTTON = 22
+TWO_HOURS_BUTTON = 24
+RESET_BUTTON = 25
+INFO_BUTTON = 23
 day_record = {'title': 'コワーキングスペース一日利用', 'price': 1000}
 two_hours_record = {'title': 'コワーキングスペース2時間利用', 'price':  500}
 vendor_id = 0x04b8

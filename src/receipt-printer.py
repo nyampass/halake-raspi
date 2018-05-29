@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from escpos.constants import FS, ESC
 from escpos.printer import Usb
 from escpos.exceptions import USBNotFoundError
+from requests.exceptions import ConnectionError
 
 image_dir = os.path.dirname(os.path.realpath(__file__))
 root_dir = os.path.dirname(image_dir)
@@ -105,17 +106,20 @@ CHECK_EVENT_INTERVAL = timedelta(hours = 1)
 
 def get_events():
     global events
-    events = []
-    for event in Connpass().search(series_id=[CONNPASS_GROUP_ID])['events']:
-        start_at = datetime.strptime(
-            event['started_at'].split('T')[0], '%Y-%m-%d')
-        if start_at > datetime.now():
-            events.append({
-                'date': start_at,
-                'headline': event_headeline(event, start_at)
-            })
-
-    events = sorted(events, key=lambda event: event['date'])
+    new_events = []
+    try:
+        for event in Connpass().search(series_id=[CONNPASS_GROUP_ID])['events']:
+            start_at = datetime.strptime(
+                event['started_at'].split('T')[0], '%Y-%m-%d')
+            if start_at > datetime.now():
+                new_events.append({
+                    'date': start_at,
+                    'headline': event_headeline(event, start_at)
+                })
+        events = sorted(new_events, key=lambda event: event['date'])
+    except ConnectionError as e:
+        print("Cannot get events")
+        print(e)
 
 
 def check_events():

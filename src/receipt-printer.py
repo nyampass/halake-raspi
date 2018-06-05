@@ -213,12 +213,19 @@ def open_printer(vendor_id, product_id):
         print("cannot open printer")
         return None
 
+BUTTON_TOP_LEFT = 25
+BUTTON_TOP_CENTER = 23
+BUTTON_TOP_RIGHT = 18
+BUTTON_BOTTOM_LEFT = 24
+BUTTON_BOTTOM_CENTER = 22
+BUTTON_BOTTOM_RIGHT = 17
 
-PRINT_BUTTON = 17
-DAY_BUTTON = 22
-TWO_HOURS_BUTTON = 24
-RESET_BUTTON = 25
-INFO_BUTTON = 23
+PRINT_BUTTON = BUTTON_TOP_RIGHT
+DAY_BUTTON = BUTTON_TOP_CENTER
+TWO_HOURS_BUTTON = BUTTON_TOP_LEFT
+RESET_BUTTON = BUTTON_BOTTOM_LEFT
+INFO_BUTTON = BUTTON_BOTTOM_CENTER
+
 day_record = {'title': 'コワーキングスペース一日利用', 'price': 1000}
 two_hours_record = {'title': 'コワーキングスペース2時間利用', 'price':  500}
 vendor_id = 0x04b8

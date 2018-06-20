@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from escpos.constants import FS, ESC
 from escpos.printer import Usb
 from escpos.exceptions import USBNotFoundError
+from json.decoder import JSONDecodeError
 from requests.exceptions import ConnectionError
 
 image_dir = os.path.dirname(os.path.realpath(__file__))
@@ -118,7 +119,10 @@ def get_events():
                 })
         events = sorted(new_events, key=lambda event: event['date'])
     except ConnectionError as e:
-        print("Cannot get events")
+        print("Cannot get events because of ConnectionError.")
+        print(e)
+    except JSONDecodeError as e:
+        print("Cannot get events because of JSONDecodeError. (Maybe connpass is in maintenance)")
         print(e)
 
 

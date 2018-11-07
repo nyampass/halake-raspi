@@ -135,7 +135,7 @@ def check_events():
 
 def receipt_info():
     header = """HaLake Wifi
-SSID: halake-a
+SSID: halake
 パスワード: {password}
 
 今後のイベント情報:

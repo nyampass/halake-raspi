@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 
-import RPi.GPIO as GPIO
 import json
 import os
 import re
@@ -13,6 +12,10 @@ from escpos.printer import Usb
 from escpos.exceptions import USBNotFoundError
 from json.decoder import JSONDecodeError
 from requests.exceptions import ConnectionError
+import argparse
+import json
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
 
 image_dir = os.path.dirname(os.path.realpath(__file__))
 root_dir = os.path.dirname(image_dir)
@@ -74,27 +77,6 @@ def print_receipt(p, dt, records):
 
 CONNPASS_GROUP_ID = 1382
 
-
-def event_headeline(event, start_at):
-    title = event['title']
-
-    title = re.sub(r'^【\d+/\d+開催】', '',
-                   re.sub(r'^【\d+/\d+】', '', title))
-    limit = event['limit']
-    accepted = event['accepted']
-    accepted_str = ''
-    if limit == None:
-        accepted_str = '({accepted}名)'.format(accepted=accepted)
-    else:
-        accepted_str = '({accepted}/{limit}名)'.format(accepted=accepted, limit=limit)
-
-    return '・{month}/{day} {title} {accepted_str}'.format(
-        title=title,
-        month=start_at.month,
-        day=start_at.day,
-        accepted_str=accepted_str)
-
-
 # Load .secret data
 with open(root_dir + '/.secret.json') as f:
     secret = json.load(f)
@@ -103,35 +85,6 @@ with open(root_dir + '/.secret.json') as f:
 events = []
 got_event_at = None
 CHECK_EVENT_INTERVAL = timedelta(hours = 1)
-
-
-def get_events():
-    global events
-    new_events = []
-    try:
-        for event in Connpass().search(series_id=[CONNPASS_GROUP_ID])['events']:
-            start_at = datetime.strptime(
-                event['started_at'].split('T')[0], '%Y-%m-%d')
-            if start_at > datetime.now():
-                new_events.append({
-                    'date': start_at,
-                    'headline': event_headeline(event, start_at)
-                })
-        events = sorted(new_events, key=lambda event: event['date'])
-    except ConnectionError as e:
-        print("Cannot get events because of ConnectionError.")
-        print(e)
-    except JSONDecodeError as e:
-        print("Cannot get events because of JSONDecodeError. (Maybe connpass is in maintenance)")
-        print(e)
-
-
-def check_events():
-    global got_event_at
-    if got_event_at == None or got_event_at < datetime.now() - CHECK_EVENT_INTERVAL:
-        got_event_at = datetime.now()
-        get_events()
-
 
 def receipt_info():
     header = """HaLake Wifi
@@ -189,27 +142,6 @@ def print_questions(p):
     p.cut()
 
 
-def button_process(pin, action):
-    def process():
-        i = 0
-        flag = False
-        while True:
-            if GPIO.input(pin):
-                # print(pin, 'high')
-                i = 0
-                flag = False
-            else:
-                # print(pin, 'low')
-                i += 1
-                if i >= 5:
-                    if not flag:
-                        print(pin, "do action")
-                        action()
-                    flag = True
-            yield
-    return process()
-
-
 def open_printer(vendor_id, product_id):
     try:
         return Usb(vendor_id, product_id, 0)
@@ -217,34 +149,12 @@ def open_printer(vendor_id, product_id):
         print("cannot open printer")
         return None
 
-BUTTON_TOP_LEFT = 25
-BUTTON_TOP_CENTER = 23
-BUTTON_TOP_RIGHT = 18
-BUTTON_BOTTOM_LEFT = 24
-BUTTON_BOTTOM_CENTER = 22
-BUTTON_BOTTOM_RIGHT = 17
-
-PRINT_BUTTON = BUTTON_TOP_RIGHT
-DAY_BUTTON = BUTTON_TOP_CENTER
-TWO_HOURS_BUTTON = BUTTON_TOP_LEFT
-RESET_BUTTON = BUTTON_BOTTOM_LEFT
-INFO_BUTTON = BUTTON_BOTTOM_CENTER
-
 day_record = {'title': 'コワーキングスペース一日利用', 'price': 1000}
 two_hours_record = {'title': 'コワーキングスペース2時間利用', 'price':  500}
 vendor_id = 0x04b8
 product_id = 0x0202
 
-GPIO.setmode(GPIO.BCM)
-
-GPIO.setup(PRINT_BUTTON, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(DAY_BUTTON, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(TWO_HOURS_BUTTON, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(RESET_BUTTON, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(INFO_BUTTON, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-
 records = []
-
 
 def print_action():
     global records
@@ -261,6 +171,7 @@ def reset_action():
 
 
 def info_action():
+    global records
     p = open_printer(vendor_id, product_id)
     if (p != None):
         print_info(p)
@@ -268,18 +179,70 @@ def info_action():
         records = []
         p.close()
 
-button_processes = []
-button_processes.append(button_process(PRINT_BUTTON, print_action))
-button_processes.append(button_process(
-    DAY_BUTTON, lambda: records.append(day_record)))
-button_processes.append(button_process(
-    TWO_HOURS_BUTTON, lambda: records.append(two_hours_record)))
-button_processes.append(button_process(RESET_BUTTON, reset_action))
-button_processes.append(button_process(INFO_BUTTON, info_action))
+msg = ''
+
+def total_print(request_json):
+    global msg
+    if 'items' not in request_json:
+        if 'info' in request_json:
+            info_action()
+        elif request_json == r'{}':
+            msg = 'Empty receipt'
+            print_action()
+        else:
+            msg = 'Invalid content'
+            return
+    else:
+        for record in request_json['items']:
+            records.append(record)
+        msg = 'Print receipt'
+        print_action()
+
+class MyHandler(BaseHTTPRequestHandler):
+    global records
+    global msg
+
+    def do_POST(self):
+        try:
+            content_len = int(self.headers.get('content-length'))
+            requestBody = json.loads(self.rfile.read(content_len).decode('utf-8'))
+
+            total_print(requestBody)
+            
+            response = {'status' : 200,
+                        'msg' : msg}
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            responseBody = json.dumps(response)
+
+            self.wfile.write(responseBody.encode('utf-8'))
+
+        except Exception as e:
+            print("An error occured")
+            print("The information of error is as following")
+            print(type(e))
+            print(e.args)
+            print(e)
+            response = { 'status' : 500,
+                         'msg' : 'An error occured' }
+
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            responseBody = json.dumps(response)
+
+            self.wfile.write(responseBody.encode('utf-8'))
+
+def run(server_class=HTTPServer, handler_class=MyHandler, server_name='', port=8008):
+
+    server = server_class((server_name, port), handler_class)
+    server.serve_forever()
+
+def main():
+    run(server_name='', port=8008)
 
 print('start')
-while True:
-    for process in button_processes:
-        next(process)
-    check_events()
-    time.sleep(0.01)
+
+if __name__ == '__main__':
+    main()

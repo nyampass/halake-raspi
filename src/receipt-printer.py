@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 
+import RPi.GPIO as GPIO
 import json
 import os
 import re
@@ -15,7 +16,7 @@ from requests.exceptions import ConnectionError
 import argparse
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
-
+import threading 
 
 image_dir = os.path.dirname(os.path.realpath(__file__))
 root_dir = os.path.dirname(image_dir)
@@ -142,6 +143,27 @@ def print_questions(p):
     p.cut()
 
 
+def button_process(pin, action):
+    def process():
+        i = 0
+        flag = False
+        while True:
+            if GPIO.input(pin):
+                # print(pin, 'high')
+                i = 0
+                flag = False
+            else:
+                # print(pin, 'low')
+                i += 1
+                if i >= 5:
+                    if not flag:
+                        print(pin, "do action")
+                        action()
+                    flag = True
+            yield
+    return process()
+
+
 def open_printer(vendor_id, product_id):
     try:
         return Usb(vendor_id, product_id, 0)
@@ -149,10 +171,31 @@ def open_printer(vendor_id, product_id):
         print("cannot open printer")
         return None
 
+BUTTON_TOP_LEFT = 25
+BUTTON_TOP_CENTER = 23
+BUTTON_TOP_RIGHT = 18
+BUTTON_BOTTOM_LEFT = 24
+BUTTON_BOTTOM_CENTER = 22
+BUTTON_BOTTOM_RIGHT = 17
+
+PRINT_BUTTON = BUTTON_TOP_RIGHT
+DAY_BUTTON = BUTTON_TOP_CENTER
+TWO_HOURS_BUTTON = BUTTON_TOP_LEFT
+RESET_BUTTON = BUTTON_BOTTOM_LEFT
+INFO_BUTTON = BUTTON_BOTTOM_CENTER
+
 day_record = {'title': 'コワーキングスペース一日利用', 'price': 1000}
 two_hours_record = {'title': 'コワーキングスペース2時間利用', 'price':  500}
 vendor_id = 0x04b8
 product_id = 0x0202
+
+GPIO.setmode(GPIO.BCM)
+
+GPIO.setup(PRINT_BUTTON, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(DAY_BUTTON, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(TWO_HOURS_BUTTON, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(RESET_BUTTON, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(INFO_BUTTON, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 records = []
 
@@ -171,7 +214,6 @@ def reset_action():
 
 
 def info_action():
-    global records
     p = open_printer(vendor_id, product_id)
     if (p != None):
         print_info(p)
@@ -180,6 +222,14 @@ def info_action():
         p.close()
 
 msg = ''
+button_processes = []
+button_processes.append(button_process(PRINT_BUTTON, print_action))
+button_processes.append(button_process(
+    DAY_BUTTON, lambda: records.append(day_record)))
+button_processes.append(button_process(
+    TWO_HOURS_BUTTON, lambda: records.append(two_hours_record)))
+button_processes.append(button_process(RESET_BUTTON, reset_action))
+button_processes.append(button_process(INFO_BUTTON, info_action))
 
 def total_print(request_json):
     global msg
@@ -239,10 +289,19 @@ def run(server_class=HTTPServer, handler_class=MyHandler, server_name='', port=8
     server = server_class((server_name, port), handler_class)
     server.serve_forever()
 
-def main():
+def button():
+    print('button start')
+    while True:
+        for process in button_processes:
+            next(process)
+        time.sleep(0.01)
+
+def server():
+    print('server starts')
     run(server_name='', port=8008)
 
-print('start')
+t = threading.Thread(target=button)
+t2 = threading.Thread(target=server)
 
-if __name__ == '__main__':
-    main()
+t.start()
+t2.start()

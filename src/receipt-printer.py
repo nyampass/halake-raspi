@@ -66,6 +66,7 @@ def print_receipt(p, dt, records):
         p.set(align='center', smooth=True, text_type='B', height=2, width=2)
         text_sjis(p, '\n合計  ￥' + str(sum) + '\n')
         unset_quadruple_size_mode(p)
+        p.set(align='center', smooth=True)
         text_sjis(p, '\n\n10%標準対象  ￥' + str(sum-tax) + '\n')
         text_sjis(p, '\n\n内消費税等  ￥' + str(tax) + '\n')
     p.set(align='right', smooth=True)
@@ -77,7 +78,8 @@ def print_receipt(p, dt, records):
     unset_quadruple_size_mode(p)
     p.set(align='right', smooth=True)
     text_sjis(p, '\nURL:https://nyampass.com\n')
-    text_sjis(p, '登録番号:T6030001068243\n')
+    p.set(align='center', smooth=True)
+    text_sjis(p, '\n登録番号:T6030001068243\n')
     p.cut()
 
 

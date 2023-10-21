@@ -6,6 +6,7 @@ import json
 import os
 import re
 import time
+import math
 from connpass import Connpass
 from datetime import datetime, timedelta
 from escpos.constants import FS, ESC
@@ -61,9 +62,13 @@ def print_receipt(p, dt, records):
             p.set(align='right', smooth=True)
             text_sjis(p, '￥' + str(record['price']) + '\n')
         set_quadruple_size_mode(p)
+        tax = math.floor(sum/11)
         p.set(align='center', smooth=True, text_type='B', height=2, width=2)
         text_sjis(p, '\n合計  ￥' + str(sum) + '\n')
         unset_quadruple_size_mode(p)
+        p.set(align='center', smooth=True)
+        text_sjis(p, '\n10%標準対象  ￥' + str(sum-tax) + '\n')
+        text_sjis(p, '内消費税等  ￥' + str(tax) + '\n')
     p.set(align='right', smooth=True)
     text_sjis(p, '\n\n〒343-0827 埼玉県越谷市レイクタウン8-11-1\n')
     text_sjis(p, 'レイクタウンオークラビル4F\n\n')
@@ -72,7 +77,9 @@ def print_receipt(p, dt, records):
     text_sjis(p, 'ニャンパス株式会社\n')
     unset_quadruple_size_mode(p)
     p.set(align='right', smooth=True)
-    text_sjis(p, '\nURL:http://nyampass.com TEL:050-3159-6010\n')
+    text_sjis(p, '\nURL:https://nyampass.com\n')
+    p.set(align='center', smooth=True)
+    text_sjis(p, '\n登録番号:T6030001068243\n')
     p.cut()
 
 
